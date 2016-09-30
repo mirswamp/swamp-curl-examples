@@ -15,36 +15,26 @@ Setup
    export SWAMPPASS=password
    # create private files
    umask 0077
-   # if using it.cosalab.org
-   export RWS=swa-csaweb-it-01.cosalab.org
-   export CSA=swa-csaweb-it-01.cosalab.org
-   # if using www.mir-swamp.org
-   export RWS=swa-rws-pd-01.mir-swamp.org
+   # CSA server at www.mir-swamp.org
    export CSA=swa-csaweb-pd-01.mir-swamp.org
 
 Log in
 ==================
 ::
    
-   # log in to RWS
-   curl -f -c rws-cookie-jar.txt \
-     -H "Content-Type: application/json; charset=UTF-8" \
-     -X POST \
-     -d "{\"username\":\"$SWAMPUSER\",\"password\":\"$SWAMPPASS\"}" \
-     https://$RWS/login > rws-userinfo.txt
    # log in to CSA
    curl -f -c csa-cookie-jar.txt \
      -H "Content-Type: application/json; charset=UTF-8" \
      -X POST \
      -d "{\"username\":\"$SWAMPUSER\",\"password\":\"$SWAMPPASS\"}" \
-     https://$CSA/login > csa-userinfo.txt
+     https://$CSA/login > rws-userinfo.txt
    # find my user UUID
    perl -n -e 'print $1 if (/\"user_uid\":\"([\w-]+)\"/);' \
      < rws-userinfo.txt > swamp-user-uuid.txt
    export SWAMP_USER_UUID=`cat swamp-user-uuid.txt`
    # look up additional user info (email address, etc.)
-   curl -f -b rws-cookie-jar.txt -c rws-cookie-jar.txt \
-     https://$RWS/users/$SWAMP_USER_UUID > swamp-user-details.txt
+   curl -f -b csa-cookie-jar.txt -c csa-cookie-jar.txt \
+     https://$CSA/users/$SWAMP_USER_UUID > swamp-user-details.txt
 
 List Projects
 ==================
@@ -52,16 +42,16 @@ List Projects
    
    # find "MyProject"
    # get my project memberships
-   curl -f -b rws-cookie-jar.txt -c rws-cookie-jar.txt \
-     https://$RWS/users/$SWAMP_USER_UUID/projects/trial \
+   curl -f -b csa-cookie-jar.txt -c csa-cookie-jar.txt \
+     https://$CSA/users/$SWAMP_USER_UUID/projects/trial \
      > swamp-myproject.txt
    # get UUID for "MyProject"
    perl -n -e 'print $1 if (/\"project_uid\":\"([\w-]+)\"/);' \
      < swamp-myproject.txt > swamp-project-uuid.txt
    export SWAMP_PROJECT_UUID=`cat swamp-project-uuid.txt`
    # get my other project memberships (if any)
-   curl -f -b rws-cookie-jar.txt -c rws-cookie-jar.txt \
-     https://$RWS/users/$SWAMP_USER_UUID/projects > swamp-projects.txt
+   curl -f -b csa-cookie-jar.txt -c csa-cookie-jar.txt \
+     https://$CSA/users/$SWAMP_USER_UUID/projects > swamp-projects.txt
 
 List Packages
 ==================
@@ -323,26 +313,21 @@ Log Out
    
    # clear out environment variables
    unset SWAMPUSER SWAMPPASS
-   # log out of RWS
-   curl -f -b rws-cookie-jar.txt -c rws-cookie-jar.txt \
-     -X POST \
-     -d "" \
-     https://$RWS/logout
    # log out of CSA
    curl -f -b csa-cookie-jar.txt -c csa-cookie-jar.txt \
      -X POST \
      -d "" \
      https://$CSA/logout
-   # remove cookie jars
-   rm -f csa-cookie-jar.txt rws-cookie-jar.txt 
+   # remove cookie jar
+   rm -f csa-cookie-jar.txt
 
 Error Checking
 ==================
 ::
    
    # 'curl -f' sets non-zero exit status ($?) on error
-   curl -f -b rws-cookie-jar.txt -c rws-cookie-jar.txt \
-     https://$RWS/users/nobody
+   curl -f -b csa-cookie-jar.txt -c csa-cookie-jar.txt \
+     https://$CSA/users/nobody
    echo $?
    
 Delete Package
@@ -361,7 +346,3 @@ Get Current Logged In User
    # get current logged in user for CSA
    curl -f -b csa-cookie-jar.txt -c csa-cookie-jar.txt \
      https://$CSA/users/current
-   # get current logged in user for RWS
-   curl -f -b rws-cookie-jar.txt -c rws-cookie-jar.txt \
-     https://$RWS/users/current
-
