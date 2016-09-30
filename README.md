@@ -1,2 +1,2 @@
 # swamp-curl-examples
-Using the mir-swamp.org API with curl
+See https://swamp-curl-examples.readthedocs.io/
