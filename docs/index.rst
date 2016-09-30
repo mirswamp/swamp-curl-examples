@@ -1,6 +1,10 @@
 SWAMP API Curl Examples
 ^^^^^^^^^^^^^^^^^^^^^^^
 
+This document demonstrates the SWAMP_ API using curl.
+
+.. _SWAMP: https://mir-swamp.org/
+
 Setup
 ==================
 ::
